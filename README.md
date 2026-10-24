@@ -48,14 +48,25 @@ interface GigabitEthernet0/0.99
 ```
 
 - **DHCP:** centralizado en SRV1 (192.168.60.10), con `ip helper-address` en cada subinterfaz.
-- **ACLs extendidas:** controlan qué VLANs pueden comunicarse (por ejemplo, Formación no accede a Dirección).
+- **ACLs extendidas:** controlan qué VLANs pueden comunicarse (Formación no accede a Dirección y Desarrollo no accede a Administración).
+- **Trunks en SW-CORE:** cada enlace solo permite las VLANs necesarias (hacia SW-PB: 10, 20 y 99; hacia SW-P1: 30, 40, 50 y 99).
 - **Gestión:** switches gestionables por la VLAN 99.
 
-## ✅ Pruebas
+## ✅ Pruebas realizadas
 
-- Ping dentro de la misma VLAN ✔️
-- Ping al gateway de otra VLAN ✔️
-- Comunicación inter-VLAN a través de R1 ✔️
+| # | Prueba | Origen | Destino | Resultado |
+|---|---|---|---|---|
+| 1 | Misma VLAN | PC-ADM1 | 192.168.10.22 | ✔️ Responde |
+| 2 | Inter-VLAN (Dirección) | PC-ADM1 | 192.168.20.1 | ✔️ Responde |
+| 3 | Inter-VLAN (Desarrollo) | PC-ADM1 | 192.168.30.1 | ✔️ Responde |
+| 4 | Administración → Servidores | PC-ADM1 | 192.168.60.10 | ✔️ Responde |
+| 5 | ACL: Formación → Dirección | PC-AUL1 | 192.168.20.20 | ⛔ Bloqueado (ACL_FORMACION) |
+| 6 | ACL: Desarrollo → Administración | PC-DEV1 | 192.168.10.22 | ⛔ Bloqueado (ACL_DEV) |
+
+## 💡 Lo que aprendí
+
+- Detecté con `show cdp neighbors` que los cables no estaban en los puertos configurados como trunk y lo corregí.
+- Las ACLs extendidas se aplican en la subinterfaz de la VLAN de origen, en dirección *in*.
 
 ## 🛠️ Tecnologías
 
